@@ -1,1 +1,7 @@
-#!/bin/sh
+#!/bin/bash
+# youtube-dl -o Ep-8 https://v7.4animu.me/K-On\!/K-On\!-Episode-8-1080p.mp4
+
+[[ -z "$1" || -z "$2"  || -z "$3" ]] &&
+    echo "Insufficient Arguments" &&
+    echo "AnimeDownload [lowerbound] [upperbound] [link]"
+    exit 1

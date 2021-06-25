@@ -1,6 +1,6 @@
 #!/bin/bash
 choices="alacritty\ngtk-3.0\nmpv\nneofetch\nnvim\npicom\nqtile\nzathura"
-chosen=$(echo -e "$choices" | dmenu -p "Choose config to edit:")
+chosen=$(echo -e "$choices" | dmenu -p "choose config to edit:")
 
 case "$chosen" in
     "alacritty") file="$HOME/.config/alacritty/alacritty.yml" ;;

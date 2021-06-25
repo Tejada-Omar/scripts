@@ -6,12 +6,14 @@
     echo "AnimeDownload [lowerbound] [upperbound] [link]" &&
     exit 1
 
-# lowerbound=$1
-# upperbound=$2
 link=$3
-
 [[ "${link:8:12}" != "v7.4animu.me" ]] &&
     echo "Incorrect Link" &&
     exit 1
 
-echo "Equal"
+lowerbound=$1
+upperbound=$2
+[[ ! "$lowerbound" -le "$upperbound" ]] &&
+    echo "Bad bound arguments" &&
+    echo "AnimeDownload [lowerbound] [upperbound] [link]" &&
+    exit 1

@@ -13,4 +13,4 @@ case "$chosen" in
     "zathura")   file="$HOME/.config/zathura/zathurarc" ;;
 esac
 
-[[ -n "$chosen" ]] && "$TERM" -e "$EDITOR" "$file"
+[[ -n "$chosen" ]] && (alacritty -e nvim "$file" &)

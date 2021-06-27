@@ -1,1 +1,19 @@
-#!/bin/sh
+#!/bin/bash
+# youtube-dl -o Ep-8 https://v7.4animu.me/K-On\!/K-On\!-Episode-8-1080p.mp4
+
+[[ -z "$1" || -z "$2"  || -z "$3" ]] &&
+    echo "Insufficient Arguments" &&
+    echo "AnimeDownload [lowerbound] [upperbound] [link]" &&
+    exit 1
+
+link=$3
+[[ "${link:8:12}" != "v7.4animu.me" ]] &&
+    echo "Incorrect Link" &&
+    exit 1
+
+lowerbound=$1
+upperbound=$2
+[[ ! "$lowerbound" -le "$upperbound" ]] &&
+    echo "Bad bound arguments" &&
+    echo "AnimeDownload [lowerbound] [upperbound] [link]" &&
+    exit 1

@@ -4,17 +4,15 @@
     echo "AnimeDownload [lowerbound] [upperbound] [link] [true?]" &&
     exit 1
 
-link=$3
-[[ "${link:8:12}" != "v7.4animu.me" ]] &&
-    echo "Incorrect Link" &&
-    exit 1
-
 lowerbound=$1
 upperbound=$2
+link=$3
 [[ ! "$lowerbound" -le "$upperbound" ]] &&
     echo "Bad bound arguments" &&
     echo "AnimeDownload [lowerbound] [upperbound] [link] [true?]" &&
     exit 1
+
+mirror=$(echo "$link" | cut -d '/' -f 3)
 
 directory=$(echo "$link" | cut -d '/' -f 4)
 mkdir -p ~/Videos/Anime/"$directory"
@@ -30,7 +28,7 @@ done
 ((++fieldnumber))
 tail="-"$(echo "$episode" | cut -d '-' -f "$fieldnumber")
 
-newlink="https://v7.4animu.me/$directory/"
+newlink="https://$mirror/$directory/"
 for ((i=lowerbound; i <= upperbound; i++))
 do
     if [ "$4" == true ] ; then

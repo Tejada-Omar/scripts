@@ -12,9 +12,9 @@ USAGE: notes-start [-h | --help] [-o | --output]
 EOF
 }
 
-TEMP=$(getopt -o hc:t:o:: -l help,class:,topic:,output:: -n 'notes' -- "$@")
+TEMP=$(getopt -o hc:t:o:: -l help,class:,topic:,output:: -n 'notes-start' -- "$@")
 
-if [ $? != 0 ]; then help; echo "Terminating...">&2 ; exit 1 ; fi
+if [ $? != 0 ]; then help; echo "Terminating...">&2; exit 1; fi
 
 eval set -- "$TEMP"
 
@@ -37,7 +37,7 @@ if [[ -f "$FILE" && "$FILE" != /dev/stdout ]]; then
   read -rp "WARNING: The following process will overwrite a pre-existing \
 version of $FILE! Would you like to continue? [y/n] (n): " CHOICE
 
-  if [[ "$CHOICE" != "y" ]]; then echo "Terminating..." >&2 ; exit 1; fi
+  if [[ "$CHOICE" != "y" ]]; then echo "Terminating..." >&2; exit 1; fi
 fi
 
 echo -e "\$ $CLASS\n% $TOPIC\n% $(date +"%A, %B %-d, %Y")" > "$FILE"

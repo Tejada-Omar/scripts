@@ -1,0 +1,64 @@
+#!/bin/bash
+
+default_pandoc_template='---
+geometry: "left=1cm,top=1cm,right=1cm,bottom=2cm"
+documentclass: extarticle
+fontsize: 14pt
+---'
+
+help() {
+cat << EOF
+USAGE: notes-compile [-h | --help] [-c | --config] 
+        [-s | --skip] [-o | --options] [OUTPUT_FILE]
+EOF
+}
+
+temp=$(getopt -o hc:o::s: -l help,config:options::,skip: -n 'notes-compile' -- "$@")
+if [ $? != 0 ]; then help; echo "Terminating...">&2; exit 1; fi
+eval set -- "$temp"
+
+declare pandoc_format
+declare -a pandoc_options=()
+no_options_wanted=false
+files_to_skip=("readme.md")
+while true; do
+  case "$1" in
+    -h | --help ) help; exit 0 ;;
+    -c | --config ) pandoc_format=$2; shift 2 ;;
+    -o | --options ) if [[ -z $2 ]]; then no_options_wanted=true; fi; pandoc_options+=($2); shift 2 ;;
+    -s | --skip ) files_to_skip+=($2); shift 2 ;;
+    -- ) shift; break;;
+    * ) break ;;
+  esac
+done
+file_name=${1:-master.pdf}
+if [[ ${#pandoc_options[@]} -eq 0 && $no_options_wanted == false ]]; then 
+  pandoc_options+=("--toc" "-N")
+fi
+
+cat_pandoc_config() {
+  if [ -z "$pandoc_format" ]; then
+    echo "$default_pandoc_template"
+  else
+    cat "$pandoc_format"
+  fi
+}
+
+find_files() {
+  files=$(find . -type f -name "*.md" -print)
+  for file in "${files_to_skip[@]}"; do
+    files=$(echo "$files" | grep -v "$file")
+  done
+  echo "$files"
+}
+
+[ -z "$pandoc_format" ] && echo "No pandoc format given, using default..."
+cat_pandoc_config
+echo "Skipping over" "${files_to_skip[@]}" "..."
+echo "Using pandoc -o $file_name" "${pandoc_options[@]}" "as command..."
+
+{ cat_pandoc_config; find_files \
+  | sort -n | xargs -d"\n" sed -e "/^#\ /i \ " -e "s?~~~?$(pwd)?g" ; } \
+  | pandoc -o "$file_name" "${pandoc_options[@]}"
+
+echo "Finished compiling to $file_name"

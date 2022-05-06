@@ -12,50 +12,50 @@ USAGE: notes-start [-h | --help] [-o | --output]
 EOF
 }
 
-TEMP=$(getopt -o hc:t:o:: -l help,class:,topic:,output:: -n 'notes-start' -- "$@")
+temp=$(getopt -o hc:t:o:: -l help,class:,topic:,output:: -n 'notes-start' -- "$@")
 
 if [ $? != 0 ]; then help; echo "Terminating...">&2; exit 1; fi
 
-eval set -- "$TEMP"
+eval set -- "$temp"
 
-FILE=/dev/stdout
-IS_DEFAULT_CLASS=true
-IS_DEFAULT_TOPIC=true
-CLASS="[INSERT CLASS HERE]"
-TOPIC="[INSERT TOPIC HERE]"
+file=/dev/stdout
+is_default_class=true
+is_default_topic=true
+class="[INSERT CLASS HERE]"
+topic="[INSERT TOPIC HERE]"
 while true; do
   case "$1" in
     -h | --help ) help; exit 0 ;;
-    -c | --class ) CLASS=$2; IS_DEFAULT_CLASS=false; shift 2 ;;
-    -t | --topic ) TOPIC=$2; IS_DEFAULT_TOPIC=false; shift 2 ;;
-    -o | --output ) [[ -z "$2" ]] && FILE=./notes.md || FILE="$2"; shift 2 ;;
+    -c | --class ) class=$2; is_default_class=false; shift 2 ;;
+    -t | --topic ) topic=$2; is_default_topic=false; shift 2 ;;
+    -o | --output ) [[ -z "$2" ]] && file=./notes.md || file="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
 done
 
-if [[ -f "$FILE" && "$FILE" != /dev/stdout ]]; then
-  CHOICE="n"
+if [[ -f "$file" && "$file" != /dev/stdout ]]; then
+  choice="n"
   read -rp "WARNING: The following process will overwrite a pre-existing \
-version of $FILE! Would you like to continue? [y/n] (n): " CHOICE
+version of $file! Would you like to continue? [y/n] (n): " choice
 
-  if [[ "$CHOICE" != "y" ]]; then echo "Terminating..." >&2; exit 1; fi
+  if [[ "$choice" != "y" ]]; then echo "Terminating..." >&2; exit 1; fi
 fi
 
-if [[ $IS_DEFAULT_CLASS == true ]]; then
-  CHOICE=""
-  read -rp "Enter class name: " CHOICE
-  if [[ -n "${CHOICE// }" ]]; then
-    CLASS="$CHOICE"
+if [[ $is_default_class == true ]]; then
+  choice=""
+  read -rp "Enter class name: " choice
+  if [[ -n "${choice// }" ]]; then
+    class="$choice"
   fi
 fi
 
-if [[ $IS_DEFAULT_TOPIC == true ]]; then
-  CHOICE=""
-  read -rp "Enter topic name: " CHOICE
-  if [[ -n "${CHOICE// }" ]]; then
-    TOPIC="$CHOICE"
+if [[ $is_default_topic == true ]]; then
+  choice=""
+  read -rp "Enter topic name: " choice
+  if [[ -n "${choice// }" ]]; then
+    topic="$choice"
   fi
 fi
 
-echo -e "\$ $CLASS\n% $TOPIC\n% $(date +"%A, %B %-d, %Y")" > "$FILE"
+echo -e "\$ $class\n% $topic\n% $(date +"%A, %B %-d, %Y")" > "$file"

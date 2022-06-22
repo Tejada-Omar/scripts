@@ -20,7 +20,7 @@ eval set -- "$temp"
 declare pandoc_format
 declare -a pandoc_options=()
 no_options_wanted=false
-files_to_skip=("readme.md")
+files_to_skip=("readme.md" "licence.md" "index.md")
 while true; do
   case "$1" in
     -h | --help ) help; exit 0 ;;
@@ -31,6 +31,7 @@ while true; do
     * ) break ;;
   esac
 done
+
 file_name=${1:-master.pdf}
 if [[ ${#pandoc_options[@]} -eq 0 && $no_options_wanted == false ]]; then 
   pandoc_options+=("--toc" "-N")
@@ -45,11 +46,8 @@ cat_pandoc_config() {
 }
 
 find_files() {
-  files=$(find . -type f -name "*.md" -print)
-  for file in "${files_to_skip[@]}"; do
-    files=$(echo "$files" | grep -v "$file")
-  done
-  echo "$files"
+  IFS=\|
+  fd -e md | rg -iv "${files_to_skip[*]}"
 }
 
 [ -z "$pandoc_format" ] && echo "No pandoc format given, using default..."

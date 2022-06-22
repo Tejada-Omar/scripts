@@ -3,7 +3,7 @@
 source "/home/omar/Scripts/dmenu/config"
 
 wikidir="/usr/share/doc/arch-wiki/html/en/"
-choice=$(fd "*" "${wikidir}" -e html -g | \
+choice=$(fd . "${wikidir}" -e html | \
         cut -d '/' -f8- | \
         sed -e 's/_/ /g' -e 's/.html//g' | \
         sort -g | \

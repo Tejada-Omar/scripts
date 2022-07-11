@@ -145,7 +145,13 @@ main() {
     [ $force_allowed -ne 1 ] && check_for_file "$filtered"
     set +u
     if [ -z "$dry_run" ]; then
-      mv -v "$file_name" "$filtered"
+      if [ $force_allowed -ne 1 ]; then
+        mv -v "$file_name" "$filtered"
+      else
+        set +e # To fix mv err code if file_name is unchanged
+        mv -vf "$file_name" "$filtered"
+        set -e
+      fi
     else
       echo -e "$file_name\n\t--> $filtered"
     fi

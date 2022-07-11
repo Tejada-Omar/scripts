@@ -1,7 +1,6 @@
 #!/bin/bash
 # Example rename
 # <title>-by-<author>.<extension>
-# TODO: Return err is no metadata found
 help() {
 cat << EOF
 USAGE: book-renamer [-h | --help] [-t | --title] [-c | --creator]
@@ -34,16 +33,24 @@ done
 
 get_file_extension() {
   local file_name=$1
-  echo "$file_name" | rg -o '(\..+)$'
+  echo "$file_name" | rg -o --pcre2 '\.(?![\s\S]*\.).+'
 }
 
 metadata_to_file_name() {
   local file_name=$1
   local -n metadata=$2
+  local -a subtitle_denoter=(':' ';' ',' '.')
+
+  for i in "${!subtitle_denoter[@]}"
+  do
+    metadata=("${metadata[@]%%${subtitle_denoter[$i]}*}")
+  done
+
   for i in "${!metadata[@]}"
   do
     metadata[$i]=$(echo "${metadata[i]}" |\
-      sed -e 's/_//g' -e 's/://g' -e "s/\ /$sep_string/g" -e 's/,//g')
+      tr -dc '[:print:]' |\
+      sed "s/\ /$sep_string/g")
   done
 
   local extension
@@ -52,7 +59,8 @@ metadata_to_file_name() {
   [ -n "$title_flag" ] && metadata[0]="$title_flag"
   [ -n "$creator_flag" ] && metadata[1]="$creator_flag"
   set -u
-  echo -e "${metadata[0]}$sep_string""by$sep_string${metadata[1]}$extension"
+  echo -e "${metadata[0]}$sep_string""by$sep_string${metadata[1]}$extension" |\
+    tr -sc '[:alnum:]'
 }
 
 find_epubdata_helper() {

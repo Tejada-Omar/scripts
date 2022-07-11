@@ -1,0 +1,155 @@
+#!/bin/bash
+# Example rename
+# <title>-by-<author>.<extension>
+# TODO: Return err is no metadata found
+help() {
+cat << EOF
+USAGE: book-renamer [-h | --help] [-t | --title] [-c | --creator]
+        [-s | --sep-string] [-f | --force] [-d | --dry-run] [BOOK]
+EOF
+}
+
+set -eou pipefail
+temp=$(getopt -o ht::c::s:fd -l help,title::,creator::,sep-string:,force,dry-run -n 'book-renamer' -- "$@")
+if [ $? != 0 ]; then help; echo "Terminating...">&2; exit 1; fi
+eval set -- "$temp"
+
+declare title_flag
+declare creator_flag
+declare dry_run
+sep_string='-'
+force_allowed=0
+while true; do
+  case "$1" in
+    -h | --help ) help; exit 0 ;;
+    -t | --title ) title_flag="$2"; shift 2 ;;
+    -c | --creator ) creator_flag="$2"; shift 2 ;;
+    -s | --sep-string ) sep_string="$2"; shift 2 ;;
+    -f | --force ) force_allowed=1; shift ;;
+    -d | --dry-run ) dry_run=1; shift ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
+get_file_extension() {
+  local file_name=$1
+  echo "$file_name" | rg -o '(\..+)$'
+}
+
+metadata_to_file_name() {
+  local file_name=$1
+  local -n metadata=$2
+  for i in "${!metadata[@]}"
+  do
+    metadata[$i]=$(echo "${metadata[i]}" |\
+      sed -e 's/_//g' -e 's/://g' -e "s/\ /$sep_string/g" -e 's/,//g')
+  done
+
+  local extension
+  extension=$(get_file_extension "$file_name")
+  set +u
+  [ -n "$title_flag" ] && metadata[0]="$title_flag"
+  [ -n "$creator_flag" ] && metadata[1]="$creator_flag"
+  set -u
+  echo -e "${metadata[0]}$sep_string""by$sep_string${metadata[1]}$extension"
+}
+
+find_epubdata_helper() {
+  local search="$1"
+  local file_name="$2"
+  local file_location
+  local metafound
+  file_location=$(unzip -l "$file_name" | rg -o '\b[^\s-]*\.opf\b')
+  metafound=$(unzip -ca "$file_name" "$file_location" |\
+              rg '<dc:'"$search"'.*>(.*)</dc:'"$search"'>' |\
+              rg -v 'subtitle')
+  expr "$metafound" : '.*<dc:'"$search"'.*>\(.*\)</dc:'"$search"'>.*' |\
+    recode html..ascii
+}
+
+find_pdfdata_helper() {
+  local search="$1"
+  local file_name="$2"
+  rg -aiF -A1 -m1 '<?xpacket end="w"?>' "$file_name" |\
+    tail -n1 |\
+    cut -d'/' --output-delimiter=$'\n' -f2- |\
+    rg -i "$search" |\
+    rg -Po '(?<=\().*?(?=\))' # Greedy look-ahead
+}
+
+find_data() {
+  local file_name=$1
+  local helper_func=$2
+  local -n search=$3
+  local -a array_data
+  for item in "${search[@]}"; do
+    mapfile -t < <($helper_func "$item" "$file_name")
+    array_data+=("${MAPFILE[@]}")
+  done
+
+  metadata_to_file_name "$file_name" array_data
+}
+
+find_data_assignment() {
+  local file_name=$1
+  local helper_func
+  local -a search_terms=("title")
+  case $(get_mimetype "$file_name") in
+    "${valid_mimetype['epub']}" ) \
+        helper_func="find_epubdata_helper"; search_terms+=("creator") ;;
+    "${valid_mimetype['pdf']}" ) \
+        helper_func="find_pdfdata_helper"; search_terms+=("author") ;;
+    * ) echo "ERROR: Invalid function call at find_data_assignment()" >&2; exit 1 ;;
+  esac
+
+  find_data "$file_name" "$helper_func" search_terms
+}
+
+check_for_file() {
+  local filtered=$1
+  if [[ -f "$filtered" ]]; then
+    echo "File $filtered already exists"
+    read -rp "Proceed? (y/n): " choice
+    if [[ ! $choice =~ ^[Yy]$ ]]; then
+      exit 1
+    fi
+  fi
+}
+
+declare -Ar valid_mimetype=(['epub']='application/epub+zip' ['pdf']='application/pdf')
+get_mimetype() {
+  file "$1" --mime-type -00 | cut -d '' -f2
+}
+
+main() {
+  local file_name
+  local -a books=("$@")
+  for book in "${books[@]}"
+  do
+    file_name="$book"
+    if [[ $(get_mimetype "$file_name") != "${valid_mimetype['epub']}" && \
+          $(get_mimetype "$file_name") != "${valid_mimetype['pdf']}" ]]; then
+      echo "WARNING: $file_name is not an epub or pdf" >&2
+      continue
+    fi
+    filtered=$(find_data_assignment "$file_name")
+    [ $force_allowed -ne 1 ] && check_for_file "$filtered"
+    set +u
+    if [ -z "$dry_run" ]; then
+      mv -v "$file_name" "$filtered"
+    else
+      echo -e "$file_name\n\t--> $filtered"
+    fi
+    set -u
+
+    echo
+  done
+}
+
+if [[ -p /dev/stdin ]]; then
+  mapfile -t books
+  main "${books[@]}"
+else
+  main "$@"
+fi

@@ -58,4 +58,4 @@ if [[ $is_default_topic == true ]]; then
   fi
 fi
 
-echo -e "\$ $class\n% $topic\n% $(date +"%A, %B %-d, %Y")" > "$file"
+echo -e "# $class\n\n> $topic\n\n> $(date +"%A, %B %-d, %Y")" > "$file"

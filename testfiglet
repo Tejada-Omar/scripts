@@ -1,0 +1,6 @@
+#!/bin/bash
+fonts=$(pyfiglet --list_fonts)
+for font in $fonts; do
+  echo "$font"
+  pyfiglet -f "$font" abcdef zig
+done

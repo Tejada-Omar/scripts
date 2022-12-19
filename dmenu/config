@@ -1,2 +1,2 @@
 #!/bin/bash
-DMENU="dmenu -x 10 -y 10 -z 1900"
+DMENU="dmenu -x 5 -y 5 -z 1910"

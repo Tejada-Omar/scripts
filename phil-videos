@@ -1,0 +1,5 @@
+#!/bin/bash
+for video in *.mp4; do
+  cp "$video" "$(echo -n "$video" | sed -e 's/ /-/g' -e 's/---/-/g' | cut -d'-' -f3-)"
+  rm -I "$video"
+done

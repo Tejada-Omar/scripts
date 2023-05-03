@@ -2,3 +2,5 @@ taken/*
 *.pdf
 *.epub
 *.md
+
+!LICENSE.md

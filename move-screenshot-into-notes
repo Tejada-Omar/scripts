@@ -1,0 +1,40 @@
+#!/bin/sh
+# Move the move recently modified screenshot into an optionally selected
+# obsidian resource folder
+set -eu
+
+help() {
+  cat << EOF
+USAGE: move-screenshot-into-notes [-h | --help] [-f | --folder]
+EOF
+}
+
+options="$(getopt -o hf: -l help,folder: -n 'move-screenshot-into-notes' -- "$@")"
+
+eval set -- "$options"
+vault="$HOME/Documents/obsidian"
+folder="$vault"
+while true; do
+  case "$1" in
+    -h | --help ) help; exit 0 ;;
+    -f | --folder ) folder=$2; shift 2 ;;
+    -- ) shift; break ;;
+    * ) break ;;
+  esac
+done
+
+screenshot="$(find "$HOME/Pictures/screenshots" -maxdepth 1 -type f -printf "%T@ %p\n" | sort -n | cut -d' ' -f2- | tail -n1)"
+resource="$([ "$folder" != "$vault" ] && find "$vault" -not \( -path "$vault/.trash" -prune \) -path "*$folder*" -name 'resources' -exec realpath {} \; || echo "$vault/resources")"
+
+if [ "$folder" != "$vault" ] && [ "$(printf '%s' "$resource" | wc -l)" -ge 1 ]; then
+  echo "Please specify '-folder' further to prevent multiple resources"
+  exit 1
+fi
+
+file_name=${1:-"$(basename "$screenshot")"}
+
+printf "Move \"%s\" into \"%s/%s\"? [y/n] (n): " "$screenshot" "$resource" "$file_name"
+read -r choice
+if [ "$choice" != "${choice#[Yy]}" ]; then
+  mv -iv "$screenshot" "$resource/$file_name"
+fi

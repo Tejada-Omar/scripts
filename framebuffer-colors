@@ -1,0 +1,20 @@
+#!/bin/bash
+if [ "$TERM" = "linux" ]; then
+  echo -en "\e]P01a1b26" #black
+  echo -en "\e]P1f7768e" #darkred
+  echo -en "\e]P21abc9c" #darkgreen
+  echo -en "\e]P316161e" #brown
+  echo -en "\e]P43d59a1" #darkblue
+  echo -en "\e]P59d7cd8" #darkmagenta
+  echo -en "\e]P62ac3de" #darkcyan
+  echo -en "\e]P7a9b1d6" #lightgrey
+  echo -en "\e]P815161e" #darkgrey
+  echo -en "\e]P9db4b4b" #red
+  echo -en "\e]PA9ece6a" #green
+  echo -en "\e]PBe0ad68" #yellow
+  echo -en "\e]PC7aa2f7" #blue
+  echo -en "\e]PDbb0af7" #magenta
+  echo -en "\e]PE7dcfff" #cyan
+  echo -en "\e]PFc0caf5" #white
+  clear                  #for background artifacting
+fi

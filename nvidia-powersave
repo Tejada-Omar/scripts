@@ -1,0 +1,16 @@
+#!/bin/bash
+if [[ "$EUID" -ne 0 ]]; then
+  echo "Please run as root"
+  exit
+fi
+
+file=/etc/modprobe.d/nvidia-pm.conf
+if [[ -f "$file" ]]; then
+  rm -v "$file"
+  # systemctl disable --now nvidia-persistenced.service
+else
+  echo 'options nvidia "NVreg_DynamicPowerManagement=0x02"' | tee -i "$file"
+  # systemctl enable --now nvidia-persistenced.service
+fi
+
+echo "Reboot to take effect"

@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+# Checks for any differences in mods chosen between the main singleplayer
+# instance and the server
+diff <(fd -a --changed-within 1d . ~/Downloads | cut -d'/' -f5- | sed -e 's/-//g' -e 's/\.//g' -e 's/[0-9]//g' -e 's/\+//g') <(fd -a . ~/.local/share/PrismLauncher/instances/Fabulously\ Optimized\(1\)/.minecraft/mods/ | rg -v 'disabled' | cut -d'/' -f11- | sed -e 's/-//g' -e 's/\.//g' -e 's/[0-9]//g' -e 's/\+//g')

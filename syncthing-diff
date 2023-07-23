@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+# Disabled as pipefail is now part of the POSIX standard
+# shellcheck disable=SC3040
+set -euo pipefail
+original=$1
+filename=$1
+
+# stversion="$(echo "$filename" | )"
+if [ "$(echo "$filename" | head -c 12)" = '.stversions/' ]; then
+  filename="$(echo "$filename" | cut -c 13-)"
+fi
+
+stdate="$(echo "$filename" | rg -o '\~[0-9-]+')"
+filename="$(echo "$filename" | sed "s/$stdate//")"
+
+printf 'Diffing %s and %s\n' "$original" "$filename"
+diff "$original" "$filename"

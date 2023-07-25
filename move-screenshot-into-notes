@@ -5,19 +5,21 @@ set -eu
 
 help() {
   cat << EOF
-USAGE: move-screenshot-into-notes [-h | --help] [-f | --folder]
+USAGE: move-screenshot-into-notes [-h | --help] [-f | --folder] [-n | --noconfirm]
 EOF
 }
 
-options="$(getopt -o hf: -l help,folder: -n 'move-screenshot-into-notes' -- "$@")"
+options="$(getopt -o hfn: -l help,folder,noconfirm: -n 'move-screenshot-into-notes' -- "$@")"
 
 eval set -- "$options"
 vault="$HOME/Documents/obsidian"
 folder="$vault"
+confirm=true
 while true; do
   case "$1" in
     -h | --help ) help; exit 0 ;;
     -f | --folder ) folder=$2; shift 2 ;;
+    -n | --noconfirm ) confirm=false; shift ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -33,8 +35,17 @@ fi
 
 file_name=${1:-"$(basename "$screenshot")"}
 
+move_files() {
+  mv -iv "$screenshot" "$resource/$file_name"
+}
+
+if [ "$confirm" = false ]; then
+  move_files
+  exit 0
+fi
+
 printf "Move \"%s\" into \"%s/%s\"? [y/n] (n): " "$screenshot" "$resource" "$file_name"
 read -r choice
 if [ "$choice" != "${choice#[Yy]}" ]; then
-  mv -iv "$screenshot" "$resource/$file_name"
+  move_files
 fi

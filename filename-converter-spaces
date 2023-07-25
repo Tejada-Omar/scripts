@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # Turns "Upper Case.pdf" files into "upper-case.pdf" files
 for file in *.pdf; do
   mv "$file" "$(echo "$file" | sed -e 's/ /-/g' -e 's/---/-/g' | tr '[:upper:]' '[:lower:]')"

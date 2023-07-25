@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 if [ "$TERM" = "linux" ]; then
   echo -en "\e]P01a1b26" #black
   echo -en "\e]P1f7768e" #darkred

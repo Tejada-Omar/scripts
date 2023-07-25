@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 [[ -z "$1" || -z "$2"  || -z "$3" ]] &&
     echo "Insufficient Arguments" &&
     echo "AnimeDownload [lowerbound] [upperbound] [link] [true?]" &&

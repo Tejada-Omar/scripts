@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Converts hex colours to rgb
 # https://www.chucknemeth.com/linux/ricing/virtual_terminal_color
 # https://www.chucknemeth.com/_export/code/linux/ricing/virtual_terminal_color?codeblock=3

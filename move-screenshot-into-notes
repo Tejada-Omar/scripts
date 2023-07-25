@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env sh
 # Move the move recently modified screenshot into an optionally selected
 # obsidian resource folder
 set -eu

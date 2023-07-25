@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Note that this script isn't actually useful and was written more as an exercise
 # A better implementation would just be to add a pacman hook
 tmpfile=$(mktemp /tmp/PacmanPrograms.XXXXXX)

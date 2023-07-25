@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Insert all people who have worked on each file in com.autovend.software*
 find com.autovend.software* -name '*.java' -print0 | while read -r -d $'\0' file; do
   echo "editing $file: "

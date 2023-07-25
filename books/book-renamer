@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 # Example rename
 # <title>-by-<author>.<extension>
 help() {

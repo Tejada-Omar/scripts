@@ -9,7 +9,7 @@ USAGE: move-screenshot-into-notes [-h | --help] [-f | --folder] [-n | --noconfir
 EOF
 }
 
-options="$(getopt -o hfn: -l help,folder,noconfirm: -n 'move-screenshot-into-notes' -- "$@")"
+options="$(getopt -o hf:n -l help,folder:,noconfirm -n 'move-screenshot-into-notes' -- "$@")"
 
 eval set -- "$options"
 vault="$HOME/Documents/obsidian"

@@ -1,0 +1,14 @@
+#!/usr/bin/env sh
+
+# Updates namecheap.com ddns as required for a domain to external ip
+
+HOSTNAME=subdomain
+DOMAIN=domain
+PASSWORD=password
+
+CURRENT_IP="$(curl ident.me)"
+DYN_IP="$(host "$HOSTNAME.$DOMAIN" | sed -e "s/.*\ //")"
+
+if [ "$DYN_IP" != "$CURRENT_IP" ]; then
+  curl "https://dynamicdns.park-your-domain.com/update?host=$HOSTNAME&domain=$DOMAIN&password=$PASSWORD"
+fi

@@ -21,7 +21,6 @@ eval set -- "$temp"
 file=/dev/stdout
 is_default_class=true
 is_default_topic=true
-class="[INSERT CLASS HERE]"
 topic="[INSERT TOPIC HERE]"
 while true; do
   case "$1" in
@@ -47,6 +46,9 @@ if [[ $is_default_class == true ]]; then
   read -rp "Enter class name: " choice
   if [[ -n "${choice// }" ]]; then
     class="$choice"
+  else
+    class_number="$(fd --type d -d1 '\d*' | sed 's/\///' | sort -n | tail -n1)"
+    [ "$class_number" != "" ] && class="Lecture $class_number" || class="[INSERT CLASS HERE]"
   fi
 fi
 

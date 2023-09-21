@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
 # Example output
-# $ HIST 200
-# % History of Writing
-# % Mon, 13 Sept, 2021
+# # Introduction to Computability
+#
+# > Lecture 4
+#
+# > Monday, 13 Sept, 2021
 
 help(){
 cat << EOF

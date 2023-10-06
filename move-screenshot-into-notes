@@ -12,7 +12,10 @@ EOF
 options="$(getopt -o hf:n -l help,folder:,noconfirm -n 'move-screenshot-into-notes' -- "$@")"
 
 eval set -- "$options"
-vault="$HOME/Documents/obsidian"
+
+# shellcheck disable=2015
+# echo is guaranteed to be true
+vault="$(pwd | grep -q 'obsidian' && echo "$HOME/Documents/obsidian" || pwd)"
 folder="$vault"
 confirm=true
 while true; do

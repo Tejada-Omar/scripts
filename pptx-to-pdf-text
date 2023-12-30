@@ -1,0 +1,9 @@
+#!/bin/sh
+# Find all pptx files in the working directory and convert them into pdf files
+# and corresponding plaintext
+
+mkdir pdf
+fd -e pptx . -x soffice --headless --convert-to pdf --outdir pdf {}
+
+mkdir text
+fd -e pdf . pdf/ -x pdftotext -nodiag "{.}.txt"

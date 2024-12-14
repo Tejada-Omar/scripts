@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+fd . -a -tx -E "$(basename "$0")" -E sys -X ln -ist "$HOME/.local/bin" {}
+sudo fd . -a -tx -d1 sys/ -X ln -ist "/usr/local/bin" {}

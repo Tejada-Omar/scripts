@@ -1,2 +1,0 @@
-#!/usr/bin/env bash
-DMENU="dmenu -x 5 -y 5 -z 1910"

@@ -1,4 +1,20 @@
 #!/usr/bin/env bash
 
-fd . -a -tx -E "$(basename "$0")" -E sys -X ln -ist "$HOME/.local/bin" {}
-sudo fd . -a -tx -d1 sys/ -X ln -ist "/usr/local/bin" {}
+paths=("$HOME/.local/bin")
+[[ "$1" == "-a" ]] && paths+=("/usr/local/bin")
+printf "Checking over %s\n" "${paths[@]}"
+
+while read -rd $'\0' file; do
+  # Noop if a symlink already exists and links here
+  if fd -ag "$(basename "$file")" -tl -0 "${paths[@]}" |
+    xargs -0 -r -- readlink -ze |
+    rg --null-data -qF "$file"; then
+    continue
+  fi
+
+  if [[ "$(dirname "$file" | cut -d'/' -f1)" == "usr" ]]; then
+    sudo ln -vist "${paths[1]}" "$file"
+  else
+    ln -vist "${paths[0]}" "$file"
+  fi
+done < <(fd . -a -tx -E "$(basename "$0")" -0) # Don't symlink this script

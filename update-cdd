@@ -1,0 +1,17 @@
+#!/usr/bin/env fish
+
+set -l ignored /boot /dev /EFI /proc /root /swap /sys /tmp /windows
+set -a ignored ~/Games ~/Android ~/go
+
+# Ignore broken symlinks or hidden directories in ~
+set -a ignored (find ~ -maxdepth 1 \
+  \( -xtype l -o \
+  \( -type d -name '.*' ! -name '.DOTFILES*' ! -name '.config' ! -name 'media' \) \) -print0 \
+  2>/dev/null | string split0 -n)
+
+# Ignore broken symlinks and symlinks to directories in ~/.config
+# Symlinks to directories are 99% likely to be stowed dotfiles
+set -a ignored (find ~/.config -type l \( -xtype d -o -xtype l \) -print0 \
+  2>/dev/null | string split0 -n)
+
+echo -e (string join -n '\n' $ignored) > ~/.cddignore

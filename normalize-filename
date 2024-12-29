@@ -1,0 +1,87 @@
+#!/usr/bin/env bash
+# Normalizes all passed in filenames such that they are reasonably accessibly
+# through the shell
+
+set -euo pipefail
+
+prog_name="$(basename "$0")"
+temp=$(getopt -o hbn0 -l help,backup,dry-run,null -n "$prog_name" -- "$@")
+# shellcheck disable=SC2181
+if [ $? != 0 ]; then help; exit 1; fi
+eval set -- "$temp"
+
+help() {
+  echo "USAGE: $prog_name [-hbn0] [--] [paths...]"
+  echo 'OPTIONS:'
+
+  declare -A options
+  options['-h, --help']='print this help information'
+  options['-b, --backup']='backup existing files as ".bak" instead of failing'
+  options['-n, --dry-run']='only print result of normalization algorithm'
+  options['-0, --null']='delimit input lines from STDIN with NUL'
+  options['--']='interpret any futher arguments as paths'
+  options['paths...']='paths to normalize, may be "-" to read from STDIN'
+
+  for opt in "${!options[@]}"; do
+    printf '\t%s \033[33m%s\033[0m\n' "$opt" "${options[$opt]}"
+  done
+}
+
+dry_run=0
+use_null=0
+backup=0
+while true; do
+  case "$1" in
+    -h | --help) help; exit 0;;
+    -b | --backup) backup=1; shift;;
+    -n | --dry-run) dry_run=1; shift;;
+    -0 | --null) use_null=1; shift;;
+    --) shift; break;;
+    *) break;;
+  esac
+done
+unset -v prog_name temp
+
+declare -a files
+if [ -z "$*" ] || [ "$1" = "-" ]; then
+  if [ "$use_null" -eq 0 ]; then
+    mapfile -t files
+  else
+    mapfile -d '' files
+  fi
+else
+  files=("$@")
+fi
+
+normalize() {
+  printf '%s' "$1" | sed \
+      -e 's/(\([[:digit:]]\+\))/-\1/g' \
+      -e 's/[[:space:]]/-/g' \
+      -e 's/[,\.]-/-/g' \
+      -e 's/_/-/g' |\
+    tr '[:upper:]' '[:lower:]' | tr -s '-'
+}
+
+move-file() {
+  if [ "$backup" -eq 0 ]; then
+    mv --update=none-fail "$1" "$2"
+  else
+    mv --suffix='.bak' --backup='simple' "$1" "$2"
+  fi
+}
+
+for file in "${files[@]}"; do
+  new_file="$(normalize "$file")"
+  if [ "$file" = "$new_file" ]; then
+    continue
+  fi
+
+  if [ "$dry_run" -eq 0 ]; then
+    set +e
+    move-file "$file" "$new_file"
+    set -e
+  else
+    printf '\033[32m%s\033[0m --> \033[34m%s\033[0m\n' "$file" "$new_file"
+    continue
+  fi
+done

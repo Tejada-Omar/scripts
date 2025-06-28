@@ -1,0 +1,3 @@
+#!/usr/bin/env fish
+export (read -P 'Enter Password: ' --silent \
+  | /usr/bin/gnome-keyring-daemon --replace --components=secrets --unlock)
